@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────── Tema: terang ("lights on") & gelap ("lights off") ───────── */
+:root {
+  --paper: 232 228 216;
+  --ink: 26 26 26;
+  --aged: 201 194 175;
+  --file: 217 210 191;
+  --vignette: 0.35;
+  --scanline: 0.06;
+}
+html.dark {
+  --paper: 20 20 18;
+  --ink: 232 228 216;
+  --aged: 31 30 27;
+  --file: 40 38 34;
+  --vignette: 0.55;
+  --scanline: 0.14;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+  }
+  body {
+    background-color: rgb(var(--paper));
+    color: rgb(var(--ink));
+    font-family: 'Courier Prime', monospace;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+  :focus-visible {
+    outline: 3px solid rgb(var(--ink));
+    outline-offset: 3px;
+  }
+  img {
+    -webkit-user-drag: none;
+  }
+}
+
+@layer components {
+  .paper-grain {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgb(var(--ink) / 0.05) 1px, transparent 1px),
+      radial-gradient(circle at 70% 60%, rgb(var(--ink) / 0.04) 1px, transparent 1px),
+      radial-gradient(circle at 40% 80%, rgb(var(--ink) / 0.045) 1px, transparent 1px);
+    background-size: 7px 7px, 11px 11px, 9px 9px;
+  }
+
+  .scanlines::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, var(--scanline)) 0px,
+      rgba(0, 0, 0, var(--scanline)) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 50;
+    mix-blend-mode: multiply;
+  }
+
+  .vignette::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, var(--vignette)) 100%);
+    z-index: 49;
+  }
+
+  .stamp {
+    border: 3px solid currentColor;
+    text-transform: uppercase;
+    font-family: 'Special Elite', monospace;
+    letter-spacing: 0.08em;
+    transform: rotate(-12deg);
+    opacity: 0.85;
+  }
+
+  .file-tab {
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 92% 100%, 0 100%);
+  }
+
+  .redact {
+    background: #1a1a1a;
+    color: transparent;
+    user-select: none;
+    cursor: help;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+  .redact:hover,
+  .redact:focus-visible {
+    background: transparent;
+    color: inherit;
+  }
+
+  .type-cursor::after {
+    content: '▋';
+    margin-left: 2px;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  /* Efek "glitch" pada nama saat di-hover */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    clip-path: inset(0 0 0 0);
+  }
+  .glitch:hover::before {
+    opacity: 0.7;
+    transform: translate(-3px, 0);
+    animation: glitch-a 0.45s steps(2) infinite;
+    mix-blend-mode: difference;
+  }
+  .glitch:hover::after {
+    opacity: 0.7;
+    transform: translate(3px, 0);
+    animation: glitch-b 0.45s steps(2) infinite;
+    mix-blend-mode: difference;
+  }
+
+  /* Pita garis polisi */
+  .tape {
+    background: repeating-linear-gradient(
+      -45deg,
+      #161614 0 18px,
+      #e8e4d8 18px 36px
+    );
+  }
+
+  /* Kilau saat kursor melintasi tombol utama */
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .btn-shine:hover::after {
+    transform: translateX(120%);
+  }
+
+  /* Garis bawah animasi untuk tautan */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.3s ease;
+  }
+  .link-underline:hover {
+    background-size: 100% 2px;
+  }
+}
+
+@keyframes glitch-a {
+  0% { clip-path: inset(10% 0 70% 0); }
+  50% { clip-path: inset(60% 0 15% 0); }
+  100% { clip-path: inset(30% 0 45% 0); }
+}
+@keyframes glitch-b {
+  0% { clip-path: inset(65% 0 10% 0); }
+  50% { clip-path: inset(15% 0 60% 0); }
+  100% { clip-path: inset(45% 0 30% 0); }
+}
+
+/* Scrollbar tetap bernuansa noir */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--file));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--ink));
+  border: 2px solid rgb(var(--file));
+}
+
+/* Hormati pengguna yang mematikan animasi di sistemnya */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}
